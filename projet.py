@@ -1,11 +1,17 @@
 import sqlite3
+import string
 
 import bcrypt
 from cryptography.fernet import Fernet
+import random
 
 key = Fernet.generate_key()
 salt = bcrypt.gensalt()
 fernet = Fernet(key)
+
+letters_list = list(string.ascii_lowercase) + list(string.ascii_uppercase)
+numerics_list = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+symbols_list = ['@', '&', '#', '£', '^', '|', '~', '-', '\\', '_', '/', '?', '!', '%', '$', '€', 'µ', '*', '§']
 
 
 def crypt_password(password):
@@ -51,6 +57,7 @@ def insert_list_password(liste):
     except sqlite3.Error as error:
         print("Erreur lors de l'insertion dans la table PASSWORD", error)
 
+
 liste = [('bonjour', 'coléoptère', 'illuminati', '3456134677'),
          ('5364636', 'FDGERH', 'fdhgfgjfgh', 'dfhgfgh'),
          ('5346457245724', 'GDFGDHF', 'fghdfgh', 'fghfghfggj')]
@@ -64,7 +71,9 @@ def insert_one_password(url, username, mdp, description):
         print("Connexion réussie à SQLite")
 
         sql = "INSERT INTO PASSWORD (url, username, mdp, description) VALUES ('{0}','{1}','{2}','{3}')".format(url,
-                                                                                   username, mdp, description)
+                                                                                                               username,
+                                                                                                               mdp,
+                                                                                                               description)
 
         cur.execute(sql)
         conn.commit()
@@ -77,8 +86,6 @@ def insert_one_password(url, username, mdp, description):
         print("Erreur lors de l'insertion dans la table PASSWORD", error)
 
 
-
-
 # insert_liste_password(liste)
 
 def insert_user(username, password):
@@ -88,7 +95,7 @@ def insert_user(username, password):
         print("Connexion réussie à SQLite")
 
         sql = "INSERT INTO USER (username, password) VALUES ('{0}',\"{1}\")".format(username,
-                                                                                    hashUserPassword(password))
+                                                                                    password)
 
         cur.execute(sql)
         conn.commit()
@@ -101,7 +108,7 @@ def insert_user(username, password):
         print("Erreur lors de l'insertion dans la table PASSWORD", error)
 
 
-insert_user('juju34', 'lemusclé')
+# insert_user('juju34', 'lemusclé')
 
 # ## Supprime une ligne de la table USER
 def delete_user(username):
@@ -118,6 +125,7 @@ def delete_user(username):
     conn.close()
     print("Connexion SQLite est fermée")
 
+
 # ## Met à jour une ligne de la table USER
 def update_user(username, password):
     try:
@@ -127,7 +135,7 @@ def update_user(username, password):
 
         sql = "UPDATE USER " \
               "SET password ='{0}' WHERE username={1}" \
-            .format(newPassword, newUsername)
+            .format(password, username)
 
         cur.execute(sql)
         conn.commit()
@@ -138,6 +146,8 @@ def update_user(username, password):
 
     except sqlite3.Error as error:
         print("Erreur lors lors de la mise à jour dans la colonne mdp", error)
+
+
 """
     Récupérer le mot de passe à partir d'une URL
 """
@@ -239,27 +249,40 @@ def decrypt_password(password):
 
 # decrypt_password(cod)
 
+"""
+     :param length: longueur mdp INTEGER
+     :param letters: mdp contient des lettres BOOLEAN
+     :param numerics: mdp contient des chiffres BOOLEAN
+     :param symbols: mdp contient des symboles BOOLEAN
+     :return: mdp aléatoire
+"""
+
+
 def generate_password(length, letters, numerics, symbols):
-#     """
-# :param length: longueur mdp INTEGER
-# :param letters: mdp contient des lettres BOOLEAN
-# :param numerics: mdp contient des chiffres BOOLEAN \
-# :param symbols: mdp contient des symboles BOOLEAN
-# :return: mdp aléatoire
-#     """
     list_password_to_generate = []
-    if letters == True:
-        letters_list = list(string.ascii_lowercase) + list(string.ascii_upercase)
-        list_password_to_generate = list_password_to_generate + letters_list
-        print(letters_list)
-    elif numerics == True:
-        numerics_list = ['0','1','2','3','4','5','6','7','8','9']
-        list_password_to_generate = list_password_to_generate + numerics_list
-        print(numerics_list)
-    elif symbols == True: 
-        symbols_list = ['@','&','#','£','^','|','~','-','\\','_','/','?','!','%','$','€','µ','*','§']
-        list_password_to_generate = list_password_to_generate + symbols_list
-        print(symbols_list)   
+    if letters:
+        list_password_to_generate += letters_list
+    if numerics:
+        print(numerics)
+        list_password_to_generate += numerics_list
+    if symbols:
+        list_password_to_generate += symbols_list
+    elif letters is False and numerics is False and symbols is False:
+        list_password_to_generate = letters_list
+
+    password = ''
+
+    if length < 6:
+        length = 6
+    for i in range(0, length):
+        alea = random.randint(0, len(list_password_to_generate) - 1)
+        password = password + list_password_to_generate[alea]
+
+    return password
+
+
+print(generate_password(0, True, False, True))
+
 
 def estConnuDansLaDB(username, password):
     try:
@@ -280,5 +303,4 @@ def estConnuDansLaDB(username, password):
     except sqlite3.Error as error:
         print("Erreur lors de la récupération dans la colonne mdp", error)
 
-
-print(estConnuDansLaDB('juju34', 'lemusclé'))
+# print(estConnuDansLaDB('juju34', 'lemusclé'))
