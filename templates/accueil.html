@@ -16,13 +16,44 @@
     <title>Hello world</title>
     <script src="{{url_for('static', filename='main.js')}}"></script>
     <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-            integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <body>
 <div class="container2">
-    {% for att in listPassword %}
-    <p>{{att}}</p>
-    {% endfor %}
+
+</div>
+
+<div class="container2">
+    <table style="width:100%">
+        <tr>
+            <th>id</th>
+            <th>username</th>
+            <th>url</th>
+            <th>mdp</th>
+            <th>description</th>
+            <th>action</th>
+        </tr>
+        {% for att in listPassword %}
+        <tr>
+            <td>{{att[0]}}</td>
+            <td>{{att[1]}}</td>
+            <td>{{att[2]}}</td>
+            <td>{{att[3]}}</td>
+            <td>{{att[4]}}</td>
+            <td>
+                <button class="favorite styled"
+                        type="button">
+                    update
+                </button>
+                <button class="favorite styled"
+                        type="button" onclick="window.location='/delete/{{att[0]}}';">
+                    delete
+                </button>
+            </td>
+
+        </tr>
+        {% endfor %}
+    </table>
 </div>
 </body>
 </html>

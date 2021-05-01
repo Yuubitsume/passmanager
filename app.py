@@ -9,3 +9,8 @@ backend = Backend()
 @app.route('/')
 def index():
     return render_template('accueil.html', listPassword=backend.get_all_from_db())
+
+@app.route('/delete/<int:id>')
+def delete_password(id):
+    backend.delete_password_from_db(id)
+    return render_template('accueil.html', listPassword=backend.get_all_from_db())
